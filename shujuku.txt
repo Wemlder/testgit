@@ -1,0 +1,283 @@
+package TSG;
+import java.sql.*;
+import java.util.*;
+public class UserSQLConn{
+	/**
+	 * @param args
+	 * 实现增删改查
+	 */
+	static String driverName="com.microsoft.sqlserver.jdbc.SQLServerDriver";
+	static String dbUrl="jdbc:sqlserver://localhost:1433;DatabaseName=TuShuGuang";
+	static String us="sa";
+	static String pw="zxc150587"; 
+	//连接数据库构造构造方法
+	public  static Connection getConn(String dbDriver,String dbUrl,String us,String pw){
+		       Connection conn=null;
+		      try {
+				 Class.forName(dbDriver);
+				 conn=DriverManager.getConnection(dbUrl,us,pw);
+			} catch (ClassNotFoundException  e) {
+				e.printStackTrace();
+			}catch(SQLException e1){
+				e1.printStackTrace();
+			}
+			return conn;
+	}
+	//创建表
+	public void bookCreate() throws SQLException {
+		Connection conn = null;
+		Statement stat = null;
+		conn = getConn(driverName, dbUrl, us, pw);
+		stat = conn.createStatement();
+		stat.executeUpdate("create table book" +
+			"(id int," +" name varchar(30)," +"author varchar(30)," +"press varchar(30)," +"ISBN varchar(30),"+"pubDate varchar(30),"+
+			"Borrow varchar(20) default 'No' check(Borrow='Yes' or Borrow='No')" +
+			")");
+	}
+	public void peopleCreate() throws SQLException {
+		Connection conn = null;
+		Statement stat = null;
+		conn = getConn(driverName, dbUrl, us, pw);
+		stat = conn.createStatement();
+		stat.executeUpdate("create table people" +
+			"(userid int," +"account varchar(30),"+"password varchar(30)," +"type varchar(20) default 'student' check(type='student' or type='admin')" +
+			")");
+	}
+	public void borrowbookCreate() throws SQLException {
+		Connection conn = null;
+		Statement stat = null;
+		conn = getConn(driverName, dbUrl, us, pw);
+		stat = conn.createStatement();
+		stat.executeUpdate("create table borrowbook" +
+			"(id int," +" name varchar(30)," +"author varchar(30)," +"press varchar(30)," +"ISBN varchar(30),"+"pubDate varchar(30),"+
+			"Borrow varchar(20) default 'No' check(Borrow='Yes' or Borrow='No')," +"Borrowpeople varchar(30),"+"Borrowtime int,"+"stilltime int,"+"money int,"+"ps varchar(50),"+
+			")");
+	}
+	//向表中添加数据
+	public void addbook(ArrayList<book> ls) throws SQLException{
+		  Connection conn=getConn(driverName, dbUrl, us, pw);
+		  String insertSql="insert into book values(?,?,?,?,?,?,?);";
+		  PreparedStatement psta=conn.prepareStatement(insertSql);
+		  Iterator<book> it=ls.iterator();
+		  while(it.hasNext()){
+			  book uf=it.next();
+			 //设置表字段值
+			  psta.setInt(1, uf.getid());
+			  psta.setString(2, uf.getname());
+			  psta.setString(3, uf.getauthor());
+			  psta.setString(4, uf.getpress());
+			  psta.setString(5, uf.getISBN());
+			  psta.setString(6, uf.getpubDate());
+			  psta.setString(7, uf.getBorrow());
+			//往数据库中增加一批数据
+			  psta.addBatch();
+		  }
+		  psta.executeBatch();
+		  psta.close();
+		  conn.close();
+	}
+	public void addpeople(ArrayList<User> ls) throws SQLException{
+		  Connection conn=getConn(driverName, dbUrl, us, pw);
+		  String insertSql="insert into people values(?,?,?,?);";
+		  PreparedStatement psta=conn.prepareStatement(insertSql);
+		  Iterator<User> it=ls.iterator();
+		  while(it.hasNext()){
+			  User uf=it.next();
+			 //设置表字段值
+			  psta.setInt(1, uf.getuserid());
+			  psta.setString(2, uf.getaccount());
+			  psta.setString(3, uf.getpassword());
+			  psta.setString(4, uf.gettype());
+			//往数据库中增加一批数据
+			  psta.addBatch();
+		  }
+		  psta.executeBatch();
+		  psta.close();
+		  conn.close();
+	}
+	public void addborrowbook(ArrayList<BorrowBook> ls) throws SQLException{
+		  Connection conn=getConn(driverName, dbUrl, us, pw);
+		  String insertSql="insert into borrowbook values(?,?,?,?,?,?,?,?,?,?,?,?);";
+		  PreparedStatement psta=conn.prepareStatement(insertSql);
+		  Iterator<BorrowBook> it=ls.iterator();
+		  while(it.hasNext()){
+			  BorrowBook uf=it.next();
+			 //设置表字段值
+			  psta.setInt(1, uf.getid());
+			  psta.setString(2, uf.getname());
+			  psta.setString(3, uf.getauthor());
+			  psta.setString(4, uf.getpress());
+			  psta.setString(5, uf.getISBN());
+			  psta.setString(6, uf.getpubDate());
+			  psta.setString(7, uf.getBorrow());
+			  psta.setString(8, uf.getBorrowpeople());
+			  psta.setInt(9, uf.getBorrowtime());
+			  psta.setInt(10, uf.getstillwtime());
+			  psta.setInt(11, uf.getmoney());
+			  psta.setString(12, uf.getps());
+			//往数据库中增加一批数据
+			  psta.addBatch();
+		  }
+		  psta.executeBatch();
+		  psta.close();
+		  conn.close();
+	}
+	//查询表select 
+	public  void bookSelect() throws SQLException{
+		 Connection conn=getConn(driverName, dbUrl, us, pw);
+		 Statement sta=conn.createStatement();
+		 ResultSet rs=sta.executeQuery("select * from book");
+		 while(rs.next()){
+			 int id=rs.getInt("id");
+			 String name=rs.getString("name");
+			 String author=rs.getString("author");
+			 String press=rs.getString("press");
+			 String ISBN=rs.getString("ISBN");
+			 String pubDate=rs.getString("pubDate");
+			 String Borrow=rs.getString("Borrow");
+			 System.out.println(id+" "+name+" "+author+" "+press+" "+ISBN+" "+pubDate+" "+Borrow);
+		 }
+		 
+	}
+	public  void borrowbookSelect() throws SQLException{
+		 Connection conn=getConn(driverName, dbUrl, us, pw);
+		 Statement sta=conn.createStatement();
+		 ResultSet rs=sta.executeQuery("select * from borrowbook");
+		 while(rs.next()){
+			 int id=rs.getInt("id");
+			 String name=rs.getString("name");
+			 String author=rs.getString("author");
+			 String press=rs.getString("press");
+			 String ISBN=rs.getString("ISBN");
+			 String pubDate=rs.getString("pubDate");
+			 String Borrow=rs.getString("Borrow");
+			 String Borrowpeople=rs.getString("Borrowpeople");
+			 int Borrowtime=rs.getInt("Borrowtime");
+			 int stilltime=rs.getInt("stilltime");
+			 int money=rs.getInt("money");
+			 String ps=rs.getString("ps");
+			 System.out.println(id+"   "+name+"   "+author+"   "+press+"   "+ISBN+"   "+pubDate+"   "+Borrow+"   "+Borrowpeople+"   "+Borrowtime+"   "+stilltime+"   "+money+"   "+ps);
+		 } 
+	}
+	public  void peopleSelect() throws SQLException{
+		 Connection conn=getConn(driverName, dbUrl, us, pw);
+		 Statement sta=conn.createStatement();
+		 ResultSet rs=sta.executeQuery("select * from people");
+		 while(rs.next()){
+			 int userid=rs.getInt("userid");
+			 String account=rs.getString("account");
+			 String password=rs.getString("password");
+			 String type=rs.getString("type");
+			 System.out.println(userid+"   "+account+"   "+password+"   "+type);
+		 }
+	}
+	//删除数据方法
+	public void bookDel(int index)throws SQLException{
+		 String bookDelsql="delete from book where id="+index;
+		 Connection conn=getConn(driverName, dbUrl, us, pw);
+		 Statement sta=conn.createStatement();
+		 sta.executeUpdate(bookDelsql);
+		 sta.close();
+		 conn.close();
+	}
+	public void peopleDel(int index)throws SQLException{
+		 String peopleDelsql="delete from people where userid="+index;
+		 Connection conn=getConn(driverName, dbUrl, us, pw);
+		 Statement sta=conn.createStatement();
+		 sta.executeUpdate(peopleDelsql);
+		 sta.close();
+		 conn.close();
+	}
+	public void borrowbookDel(int index)throws SQLException{
+		 String borrowbookDelsql="delete from borrowbook where id="+index;
+		 Connection conn=getConn(driverName, dbUrl, us, pw);
+		 Statement sta=conn.createStatement();
+		 sta.executeUpdate(borrowbookDelsql);
+		 sta.close();
+		 conn.close();
+	}
+	//修改方法
+	public void bookUpdate(String name,String author,String press,String ISBN,String pubDate,String Borrow,int id)throws SQLException{
+		String bookUpSql="update book set name=?,author=?,press=?,ISBN=?,pubDate=?,Borrow=? where id=?";
+		Connection conn=getConn(driverName, dbUrl, us, pw);
+		PreparedStatement psta=conn.prepareStatement(bookUpSql);
+		psta.setString(1, name);
+		psta.setString(2, author);
+		psta.setString(3, press);
+		psta.setString(4, ISBN);
+		psta.setString(5, pubDate);
+		psta.setString(6, Borrow);
+		psta.setInt(7, id);
+		psta.addBatch();
+		psta.executeBatch();
+		psta.close();
+		conn.close();
+	}
+	public void peopleUpdate(String account,String password,String type,int userid)throws SQLException{
+		String peopleUpSql="update people set account=?,password=?,type=? where userid=?";
+		Connection conn=getConn(driverName, dbUrl, us, pw);
+		PreparedStatement psta=conn.prepareStatement(peopleUpSql);
+		psta.setString(1, account);
+		psta.setString(2, password);
+		psta.setString(3, type);
+		psta.setInt(4, userid);
+		psta.addBatch();
+		psta.executeBatch();
+		psta.close();
+		conn.close();
+	}
+	public static void borrowbookUpdate(String name,String author,String press,String ISBN,String pubDate,String Borrow,String Borrowpeople,int Borrowtime,int stilltime,int money,String ps,int id)throws SQLException{
+		String borrowbookUpSql="update borrowbook set name=?,author=?,press=?,ISBN=?,pubDate=?,Borrow=?,Borrowpeople=?,Borrowtime=?,stilltime=?,money=?,ps=? where id=?";
+		Connection conn=getConn(driverName, dbUrl, us, pw);
+		PreparedStatement psta=conn.prepareStatement(borrowbookUpSql);
+		psta.setString(1, name);
+		psta.setString(2, author);
+		psta.setString(3, press);
+		psta.setString(4, ISBN);
+		psta.setString(5, pubDate);
+		psta.setString(6, Borrow);
+		psta.setString(7,Borrowpeople);
+		psta.setInt(8,Borrowtime);
+		psta.setInt(9,stilltime);
+		psta.setInt(10,money);
+		psta.setString(11,ps);
+		psta.setInt(12, id);
+		psta.addBatch();
+		psta.executeBatch();
+		psta.close();
+		conn.close();
+	}
+	public static void main(String[] args) throws SQLException {
+		// new UserSQLConn().bookCreate();
+		//new UserSQLConn().peopleCreate();
+		//new UserSQLConn().borrowbookCreate();
+		//book book1 = new book(1,"西游记","吴承恩","北京出版社","00001","2019/06/03","No");
+		//book book2=new book(2,"红楼梦","曹雪芹","北京出版社","00002","2019/06/04","No");
+		//book book3 = new book(3,"水浒传","施耐庵","北京出版社","00003","2019/06/07","No");
+		//ArrayList<book> arr=new ArrayList<book>();
+		//arr.add(book1);
+		//arr.add(book2);
+		//arr.add(book3);
+		//new UserSQLConn().addbook(arr);
+		//User user1=new User(4,"bob","123","admin");
+		//User user2=new User(3,"sam","123","student");
+		//ArrayList<User> arr=new ArrayList<User>();
+		//arr.add(user1);
+		//arr.add(user2);
+		//new UserSQLConn().addpeople(arr);
+		//BorrowBook bb1=new BorrowBook(1,"西游记","***","北京出版社","00001","2019/06/03","Yes","sa",6,0,0,"");
+		//ArrayList<BorrowBook> arr=new ArrayList<BorrowBook>();
+		//arr.add(bb1);
+		//new UserSQLConn().addborrowbook(arr);
+		//new UserSQLConn().bookDel(3);
+		//new UserSQLConn().peopleDel(3);
+		new UserSQLConn().borrowbookDel(6);
+		//new UserSQLConn().bookUpdate("西游记","吴承恩","北京出版社","00001","2019/06/03","No",1);
+		//new UserSQLConn().bookUpdate("水浒传", "施耐庵", "北京出版社", "00002", "2019/06/04","No",2);
+		//new UserSQLConn().peopleUpdate("sam","123","student",3);
+		//borrowbookUpdate("西游记","***","北京出版社","00001","2019/06/03","No","sa",6,0,0,"",1);
+		new UserSQLConn().bookSelect();	   
+		new UserSQLConn().peopleSelect();
+		new UserSQLConn().borrowbookSelect();
+	}
+}
